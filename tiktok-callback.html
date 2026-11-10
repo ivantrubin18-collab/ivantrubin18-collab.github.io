@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Bricked Era — подключение TikTok</title>
+<style>body{font:18px/1.6 system-ui,sans-serif;max-width:700px;margin:48px auto;padding:0 20px;background:#121923;color:#f4f4ed}textarea{box-sizing:border-box;width:100%;height:130px}button{padding:12px;font:inherit;margin-top:12px}a{color:#8bd3ff}</style>
+</head>
+<body>
+<h1>Bricked Era · TikTok</h1>
+<p id="result">Проверяем ответ TikTok…</p>
+<div id="fallback" hidden><p>Если фабрика не подтвердила подключение автоматически, скопируй одноразовый код ниже. Вернись в фабрику → Настройки → TikTok → «Если автоматический возврат не сработал» и вставь код.</p>
+<textarea id="code" readonly aria-label="Одноразовый код подключения"></textarea>
+<button id="copy" type="button">Скопировать код подключения</button></div>
+<p>Эта страница не получает секрет приложения и не хранит токены. Не пересылай одноразовый код другим людям.</p>
+<script>
+const params = new URLSearchParams(location.search);
+history.replaceState(null, '', location.pathname);
+const result = document.getElementById('result');
+if (params.get('error')) {
+  result.textContent = 'TikTok отменил или отклонил подключение. Вернись в фабрику и начни вход заново.';
+} else if (!params.get('code') || !params.get('state')) {
+  result.textContent = 'Страница возврата готова. Начни подключение кнопкой «Подключить TikTok» в фабрике.';
+} else {
+  const message = {type:'tiktok-oauth',code:params.get('code'),state:params.get('state')};
+  result.textContent = 'Ответ TikTok получен. Вернись в окно фабрики.';
+  document.getElementById('fallback').hidden = false;
+  document.getElementById('code').value = JSON.stringify(message);
+  document.getElementById('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(JSON.stringify(message)); document.getElementById('copy').textContent = 'Скопировано'; }
+    catch { document.getElementById('code').select(); result.textContent = 'Нажми Ctrl+C, чтобы скопировать выделенный код.'; }
+  };
+  if (window.opener) {
+    for (const origin of ['http://10.115.15.22:8000','http://localhost:8000','http://127.0.0.1:8000']) {
+      window.opener.postMessage(message, origin);
+    }
+  }
+}
+</script>
+</body></html>
